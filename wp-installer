@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#title              :wp-install
+#description        :Wordpress dev demo install + data
+#author		        :setcooki
+#date               :20172505
+#version            :0.0.1
+#usage		        :bash ./wp-install
+#notes              :tested on >= osx 10.10
+#bash_version       :>=3.2.57
+
+REPO_PATH="https://github.com/setcooki/"

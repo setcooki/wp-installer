@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+#title              :wp-install
+#description        :Wordpress dev demo install + data
+#author		        :setcooki
+#date               :20172505
+#version            :0.0.1
+#usage		        :bash ./wp-install
+#notes              :tested on >= osx 10.10
+#bash_version       :>=3.2.57
+
+DB_NAME=''
+DB_USER=''
+DB_PASS=''
+DB_HOST=''
+WP_URL=''
+WP_VERSION=''
+WP_ADMIN_USER='demo'
+WP_ADMIN_PASS='demo'
+WP_DEMO=''
+WP_CHECK=''
+WP_IMPORTER=''
+
+trim() {
+    local var="$*"
+    var="${var#"${var%%[![:space:]]*}"}"
+    var="${var%"${var##*[![:space:]]}"}"
+    echo -n "$var"
+}
+
+echo -e "Welcome to wordpress demo + data installer"
+
+echo -e "> Updating wp-cli now ..."
+
+wp cli update
+
+sleep .5
+
+if [ ! -f $PWD/wp-config.php ]; then
+
+    echo -n "Enter database name and press [ENTER]: "
+    while true; do
+        read -p "Enter database name and press [ENTER]:" DB_NAME
+        DB_NAME=$(trim $DB_NAME)
+        if [ ! -z $DB_NAME ]
+        then
+            echo "> $DB_NAME"; break;
+        else
+            echo "Enter database name and press [ENTER]:"
+        fi;
+    done;
+
+    sleep .5
+
+    echo -n "Enter database host and press [ENTER]: "
+    while true; do
+        read -p "Enter database host and press [ENTER]:" DB_HOST
+        DB_HOST=$(trim $DB_HOST)
+        if [ ! -z $DB_HOST ]
+        then
+            echo "> $DB_HOST"; break;
+        else
+            echo "Enter database host and press [ENTER]:"
+        fi;
+    done;
+
+    sleep .5
+
+    echo -n "Enter database username and press [ENTER]: "
+    while true; do
+        read -p "Enter database username and press [ENTER]:" DB_USER
+        DB_USER=$(trim $DB_USER)
+        if [ ! -z $DB_USER ]
+        then
+            echo "> $DB_USER"; break;
+        else
+            echo "Enter database username and press [ENTER]:"
+        fi;
+    done;
+
+    sleep .5
+
+    echo -n "Enter database userpass and press [ENTER]: "
+    while true; do
+        read -s -p "Enter database userpass and press [ENTER]:" DB_PASS
+        DB_PASS=$(trim $DB_PASS)
+        if [ ! -z $DB_PASS ]
+        then
+            echo "> ******"; break;
+        else
+            echo "Enter database userpass and press [ENTER]:"
+        fi;
+    done;
+
+    sleep .5
+
+fi;
+
+echo -n "Enter wordpress site url and press [ENTER]: "
+while true; do
+    read -s -p "Enter wordpress site url and press [ENTER]:" WP_URL
+    WP_URL=$(trim $WP_URL)
+    if [ ! -z $WP_URL ]
+    then
+        echo "> $WP_URL"; break;
+    else
+        echo "Enter wordpress site url and press [ENTER]:"
+    fi;
+
+    sleep .5
+
+done;
+
+echo -e -n "Enter wordpress version to install and press enter [ENTER] (leave empty for version defined in repository): "
+read WP_VERSION
+WP_VERSION=$(trim $WP_VERSION)
+if [ -z $WP_VERSION ];
+then
+    WP_VERSION=`cat $PWD/wp-version`
+fi;
+echo -e "> $WP_VERSION"
+
+sleep .5
+
+echo -e -n "Do you wish to install demo data [y/n]: "
+while true; do
+    read yn
+    if [ $yn == 'y' ]
+    then
+        WP_DEMO='yes'
+        echo "> yes"; break;
+    elif [  $yn == 'n' ]
+    then
+        WP_DEMO='no'
+        echo "> no"; break;
+    else
+        echo "Please answer with [y/n]"
+    fi;
+
+    sleep .5
+
+done;
+
+echo -e "Downloading and installing wordpress $WP_VERSION core now..."
+
+curl -z -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar > /dev/null
+
+# download core
+if [ ! -f $PWD/wp-load.php ];
+then
+    wp core download --version=$WP_VERSION --locale=en_US --force --quiet
+    echo -e "> Wordpress core downloaded"
+fi;
+
+# create config if it does not exist
+if [ ! -f $PWD/wp-config.php ];
+then
+    wp core config --dbname=$DB_NAME --dbhost=$DB_HOST --dbuser=$DB_USER --dbpass=$DB_PASS --force
+    echo -e "> wp-config.php created"
+fi;
+
+# if demo data check if database exists if not create and/or reset
+if [ $WP_DEMO == 'yes' ];
+then
+    echo -e "> checking for database now ..."
+    WP_CHECK="$(wp db check --quiet)"
+    if [ $(echo $?) == "2" ]; then
+        wp db create --quiet
+    fi;
+    wp db reset --yes --quiet
+fi;
+
+# install wp if not installed
+if [[ ( ! $(wp core is-installed) ) || ( $WP_DEMO == 'yes' ) ]];
+then
+    wp core install --url=$WP_URL --title=demo --admin_user=$WP_ADMIN_USER --admin_password=$WP_ADMIN_PASS --admin_email=$WP_ADMIN_USER@$WP_URL
+    echo -e "> Install done - login to: $WP_URL/wp-admin with: $WP_ADMIN_USER, $WP_ADMIN_PASS"
+else
+    echo -e "> Installed already - login to: $WP_URL/wp-admin with existing user"
+fi;
+
+# make a core update
+if [ $(wp core version) != $WP_VERSION ];
+then
+echo -e "> checking for core update now ..."
+    wp core update --version=$WP_VERSION --locale=en_US --force --quiet
+    wp core update-db
+    echo -e "> Core update to version $WP_VERSION done"
+fi;
+
+# import demo data
+if [ $WP_DEMO == 'yes' ];
+then
+    echo -e "> Installing demo data now ..."
+    WP_IMPORTER="$(wp plugin is-installed wordpress-importer --quiet)"
+    if [ $(echo $?) == "1" ]; then
+        wp plugin install wordpress-importer --force --quiet
+    fi;
+    wp plugin activate wordpress-importer --quiet
+    WP_IMPORTER="$(wp import $PWD/wp-data.xml --authors=create --quiet)"
+    echo -e "> Demo data has been installed"
+fi;
+
+echo -e "> Done, good bye!"
+exit 1;
