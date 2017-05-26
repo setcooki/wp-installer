@@ -9,3 +9,6 @@
 #bash_version       :>=3.2.57
 
 REPO_PATH="https://github.com/setcooki/"
+INSTALLER_PATH="https://cdn.rawgit.com/setcooki/wp-installer/1cad59fa/wp-installer"
+
+echo "install"
