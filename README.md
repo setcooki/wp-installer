@@ -1,4 +1,4 @@
-# wp-install
+# wp-installer
 
 wordpress core + demo data installer script
 
