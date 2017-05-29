@@ -13,7 +13,6 @@ you need to be able to run at least "wget" command from terminal
 ``` sh
 $ curl -O https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-install; bash ./wp-install
 ```
-
 ``` sh
 $ wget -Nnv https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-install; bash ./wp-install
 ```
