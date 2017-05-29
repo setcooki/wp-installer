@@ -59,7 +59,6 @@ sleep .5
 
 if [ ! -f $PWD/wp-config.php ]; then
 
-    echo -n "Enter database name and press [ENTER]: "
     while true; do
         read -p "Enter database name and press [ENTER]:" DB_NAME
         DB_NAME=$(trim $DB_NAME)
@@ -73,7 +72,6 @@ if [ ! -f $PWD/wp-config.php ]; then
 
     sleep .5
 
-    echo -n "Enter database host and press [ENTER]: "
     while true; do
         read -p "Enter database host and press [ENTER]:" DB_HOST
         DB_HOST=$(trim $DB_HOST)
@@ -87,7 +85,6 @@ if [ ! -f $PWD/wp-config.php ]; then
 
     sleep .5
 
-    echo -n "Enter database username and press [ENTER]: "
     while true; do
         read -p "Enter database username and press [ENTER]:" DB_USER
         DB_USER=$(trim $DB_USER)
@@ -101,7 +98,6 @@ if [ ! -f $PWD/wp-config.php ]; then
 
     sleep .5
 
-    echo -n "Enter database userpass and press [ENTER]: "
     while true; do
         read -s -p "Enter database userpass and press [ENTER]:" DB_PASS
         DB_PASS=$(trim $DB_PASS)
