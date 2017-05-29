@@ -41,9 +41,8 @@ fi;
 
 sleep .5
 
-echo -n "Enter wordpress site url and press [ENTER]: "
 while true; do
-    read -s -p "Enter wordpress site url and press [ENTER]:" WP_URL
+    read -p "Enter wordpress site url and press [ENTER]:" WP_URL
     WP_URL=$(trim $WP_URL)
     if [ ! -z $WP_URL ]
     then
