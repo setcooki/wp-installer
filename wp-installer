@@ -42,17 +42,13 @@ fi;
 sleep .5
 
 while true; do
-    read -p "Enter wordpress site url and press [ENTER]:" WP_URL
+    echo -n "Enter wordpress site url and press [ENTER]:"
+    read WP_URL
     WP_URL=$(trim $WP_URL)
-    if [ ! -z $WP_URL ]
-    then
+    if [ ! -z $WP_URL ]; then
         echo "> $WP_URL"; break;
-    else
-        echo "Enter wordpress site url and press [ENTER]:"
     fi;
-
     sleep .5
-
 done;
 
 sleep .5
@@ -60,52 +56,44 @@ sleep .5
 if [ ! -f $PWD/wp-config.php ]; then
 
     while true; do
-        read -p "Enter database name and press [ENTER]:" DB_NAME
+        echo -n "Enter database name and press [ENTER]:"
+        read DB_NAME
         DB_NAME=$(trim $DB_NAME)
-        if [ ! -z $DB_NAME ]
-        then
+        if [ ! -z $DB_NAME ]; then
             echo "> $DB_NAME"; break;
-        else
-            echo "Enter database name and press [ENTER]:"
         fi;
     done;
 
     sleep .5
 
     while true; do
-        read -p "Enter database host and press [ENTER]:" DB_HOST
+        echo -n "Enter database host and press [ENTER]:"
+        read DB_HOST
         DB_HOST=$(trim $DB_HOST)
-        if [ ! -z $DB_HOST ]
-        then
+        if [ ! -z $DB_HOST ]; then
             echo "> $DB_HOST"; break;
-        else
-            echo "Enter database host and press [ENTER]:"
         fi;
     done;
 
     sleep .5
 
     while true; do
-        read -p "Enter database username and press [ENTER]:" DB_USER
+        echo -n "Enter database username and press [ENTER]:"
+        read DB_USER
         DB_USER=$(trim $DB_USER)
-        if [ ! -z $DB_USER ]
-        then
+        if [ ! -z $DB_USER ]; then
             echo "> $DB_USER"; break;
-        else
-            echo "Enter database username and press [ENTER]:"
         fi;
     done;
 
     sleep .5
 
     while true; do
-        read -s -p "Enter database userpass and press [ENTER]:" DB_PASS
+        echo -n "Enter database userpass and press [ENTER]:"
+        read DB_PASS
         DB_PASS=$(trim $DB_PASS)
-        if [ ! -z $DB_PASS ]
-        then
+        if [ ! -z $DB_PASS ]; then
             echo "> ******"; break;
-        else
-            echo "Enter database userpass and press [ENTER]:"
         fi;
     done;
 
