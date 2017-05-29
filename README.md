@@ -11,10 +11,10 @@ you need to be able to run at least "wget" command from terminal
 ### Linux and Mac OS X
 
 ``` sh
-$ curl -O https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-install; bash ./wp-install
+$ curl -O https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-installer; bash ./wp-installer
 ```
 ``` sh
-$ wget -Nnv https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-install; bash ./wp-install
+$ wget -Nnv https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-installer; bash ./wp-installer
 ```
 
 ### Windows
