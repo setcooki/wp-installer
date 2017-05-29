@@ -10,8 +10,13 @@ you need to be able to run at least "wget" command from terminal
 
 ### Linux and Mac OS X
 
+``` sh
 $ curl -O https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-install; bash ./wp-install
+```
+
+``` sh
 $ wget -Nnv https://raw.githubusercontent.com/setcooki/wp-installer/master/wp-install; bash ./wp-install
+```
 
 ### Windows
 
@@ -19,7 +24,9 @@ currently not supported!
 
 ## Run
 
+``` sh
 $ bash ./wp-install
+```
 
 and follow install steps
 
@@ -35,4 +42,6 @@ see > https://make.wordpress.org/cli/handbook/config/
 
 wp-install needs execute permission so you may need to set those with:
 
+``` sh
 $ chmod +x wp-install
+```
