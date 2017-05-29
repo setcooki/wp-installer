@@ -8,6 +8,7 @@
 #notes              :tested on >= osx 10.10
 #bash_version       :>=3.2.57
 
+REPO_PATH="https://raw.githubusercontent.com/setcooki/wp-installer/master"
 DB_NAME=''
 DB_USER=''
 DB_PASS=''
@@ -29,9 +30,14 @@ trim() {
 
 echo -e "Welcome to wordpress demo + data installer"
 
-echo -e "> Updating wp-cli now ..."
-
-wp cli update
+if ! [ -x "$(command -v wp)" ];
+then
+    echo -e "> Downloading wp-cli now ..."
+    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+else
+    echo -e "> Updating wp-cli now ..."
+    wp cli update
+fi;
 
 sleep .5
 
@@ -115,7 +121,7 @@ read WP_VERSION
 WP_VERSION=$(trim $WP_VERSION)
 if [ -z $WP_VERSION ];
 then
-    WP_VERSION=`cat $PWD/wp-version`
+    WP_VERSION="`wget -qO- $REPO_PATH/wp-version`"
 fi;
 echo -e "> $WP_VERSION"
 
@@ -141,8 +147,6 @@ while true; do
 done;
 
 echo -e "Downloading and installing wordpress $WP_VERSION core now..."
-
-curl -z -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar > /dev/null
 
 # download core
 if [ ! -f $PWD/wp-load.php ];
@@ -196,8 +200,11 @@ then
         wp plugin install wordpress-importer --force --quiet
     fi;
     wp plugin activate wordpress-importer --quiet
+    echo -e "> Downloading demo data now ..."
+    wget -Nnv $REPO_PATH/wp-data.xml
     WP_IMPORTER="$(wp import $PWD/wp-data.xml --authors=create --quiet)"
     echo -e "> Demo data has been installed"
+    rm -rf $PWD/wp-data.xml
 fi;
 
 echo -e "> Done, good bye!"
