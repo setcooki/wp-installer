@@ -33,11 +33,28 @@ echo -e "Welcome to wordpress demo + data installer"
 if ! [ -x "$(command -v wp)" ];
 then
     echo -e "> Downloading wp-cli now ..."
-    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    wget -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 else
     echo -e "> Updating wp-cli now ..."
     wp cli update
 fi;
+
+sleep .5
+
+echo -n "Enter wordpress site url and press [ENTER]: "
+while true; do
+    read -s -p "Enter wordpress site url and press [ENTER]:" WP_URL
+    WP_URL=$(trim $WP_URL)
+    if [ ! -z $WP_URL ]
+    then
+        echo "> $WP_URL"; break;
+    else
+        echo "Enter wordpress site url and press [ENTER]:"
+    fi;
+
+    sleep .5
+
+done;
 
 sleep .5
 
@@ -100,21 +117,6 @@ if [ ! -f $PWD/wp-config.php ]; then
     sleep .5
 
 fi;
-
-echo -n "Enter wordpress site url and press [ENTER]: "
-while true; do
-    read -s -p "Enter wordpress site url and press [ENTER]:" WP_URL
-    WP_URL=$(trim $WP_URL)
-    if [ ! -z $WP_URL ]
-    then
-        echo "> $WP_URL"; break;
-    else
-        echo "Enter wordpress site url and press [ENTER]:"
-    fi;
-
-    sleep .5
-
-done;
 
 echo -e -n "Enter wordpress version to install and press enter [ENTER] (leave empty for version defined in repository): "
 read WP_VERSION
@@ -202,6 +204,7 @@ then
     wp plugin activate wordpress-importer --quiet
     echo -e "> Downloading demo data now ..."
     wget -Nnv $REPO_PATH/wp-data.xml
+    echo -e "> Importing demo data now ..."
     WP_IMPORTER="$(wp import $PWD/wp-data.xml --authors=create --quiet)"
     echo -e "> Demo data has been installed"
     rm -rf $PWD/wp-data.xml
