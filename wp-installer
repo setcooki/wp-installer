@@ -194,4 +194,4 @@ then
 fi;
 
 echo -e "> Done, good bye!"
-exit 1;
+exit 0;

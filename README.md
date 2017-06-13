@@ -24,7 +24,7 @@ currently not supported!
 ## Run
 
 ``` sh
-$ bash ./wp-install
+$ bash ./wp-installer
 ```
 
 and follow install steps
@@ -39,8 +39,8 @@ see > https://make.wordpress.org/cli/handbook/config/
 
 ## Issues
 
-wp-install needs execute permission so you may need to set those with:
+wp-installer needs execute permission so you may need to set those with:
 
 ``` sh
-$ chmod +x wp-install
+$ chmod +x wp-installer
 ```
