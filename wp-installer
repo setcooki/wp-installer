@@ -1,13 +1,60 @@
 #!/usr/bin/env bash
-#title              :wp-install
-#description        :Wordpress dev demo install + data
-#author		        :setcooki
-#date               :20172505
-#version            :0.0.1
-#usage		        :bash ./wp-install
-#notes              :tested on >= osx 10.10
-#bash_version       :>=3.2.57
+#================================================================
+# HEADER
+#================================================================
+#% SYNOPSIS
+#+      ${SCRIPT_NAME} args ...
+#%
+#% DESCRIPTION
+#%      Interactive installer for wordpress and wordpress demo data.
+#%
+#%      Script will:
+#%      - download and install wordpress core with specified version
+#%      - create a wp-config.php or read an existing one for install
+#%      - install demo data if required
+#%
+#% OPTIONS
+#%      -h, --help                  Print this help
+#%      -v, --version               Print script information
+#%
+#% EXAMPLES
+#%      ${SCRIPT_NAME} -o
+#%
+#================================================================
+#- IMPLEMENTATION
+#-      version         ${SCRIPT_NAME} 0.0.1
+#-      author          Frank Mueller (setcooki)
+#-      copyright       Copyright (c) http://set.cooki.me
+#-      license         GNU General Public License
+#-
+#================================================================
+#  HISTORY
+#       2017/06/15 : setcooki : Script creation
+#
+#================================================================
+# END_OF_HEADER
+#================================================================
 
+SCRIPT_HEADSIZE=$(head -200 ${0} |grep -n "^# END_OF_HEADER" | cut -f1 -d:)
+SCRIPT_NAME="$(basename ${0})"
+
+USAGE() { printf "Usage: "; head -${SCRIPT_HEADSIZE:-99} ${0} | grep -e "^#+" | sed -e "s/^#+[ ]*//g" -e "s/\${SCRIPT_NAME}/${SCRIPT_NAME}/g" ; }
+HELP() { head -${SCRIPT_HEADSIZE:-99} ${0} | grep -e "^#[%+-]" | sed -e "s/^#[%+-]//g" -e "s/\${SCRIPT_NAME}/${SCRIPT_NAME}/g" ; }
+INFO() { head -${SCRIPT_HEADSIZE:-99} ${0} | grep -e "^#-" | sed -e "s/^#-//g" -e "s/\${SCRIPT_NAME}/${SCRIPT_NAME}/g"; }
+
+if [[ ( $@ == "--help") ||  $@ == "-h" ]]
+then
+    HELP
+	exit 0
+fi;
+
+if [[ ( $@ == "--version") ||  $@ == "-v" ]]
+then
+    INFO
+	exit 0
+fi;
+
+DIR="$( cd "$( dirname "$0" )" && pwd )"
 REPO_PATH="https://raw.githubusercontent.com/setcooki/wp-installer/master"
 DB_NAME=''
 DB_USER=''
@@ -15,8 +62,8 @@ DB_PASS=''
 DB_HOST=''
 WP_URL=''
 WP_VERSION=''
-WP_ADMIN_USER='demo'
-WP_ADMIN_PASS='demo'
+WP_ADMIN_USER='admin'
+WP_ADMIN_PASS='admin'
 WP_DEMO=''
 WP_CHECK=''
 WP_IMPORTER=''
