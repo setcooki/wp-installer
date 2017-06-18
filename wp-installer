@@ -14,22 +14,30 @@
 #%      - install demo data if required
 #%
 #% OPTIONS
+#%      --wp-url=[url]              Expects the url (without http(s)://)
+#%                                  under which wordpress install will be running
+#%      --wp-version=[version]      Expects wordpress versions string as on
+#%                                  https://codex.wordpress.org/WordPress_Versions
+#%      --wp-demo-data=[y|n]        Expects value "y" or "n" whether to install
+#%                                  demo data
+#%
 #%      -h, --help                  Print this help
 #%      -v, --version               Print script information
 #%
 #% EXAMPLES
-#%      ${SCRIPT_NAME} -o
+#%      ${SCRIPT_NAME} -o --wp-url=wordpress.test --wp-version=4.7.5
 #%
 #================================================================
 #- IMPLEMENTATION
-#-      version         ${SCRIPT_NAME} 0.0.1
+#-      version         ${SCRIPT_NAME} 0.0.2
 #-      author          Frank Mueller (setcooki)
 #-      copyright       Copyright (c) http://set.cooki.me
-#-      license         GNU General Public License
+#-      license         MIT License
 #-
 #================================================================
 #  HISTORY
-#       2017/06/15 : setcooki : Script creation
+#       2017/06/15 : setcooki : script creation
+#       2017/06/18 : setcooki : adds possibility to pass arguments
 #
 #================================================================
 # END_OF_HEADER
@@ -54,6 +62,15 @@ then
 	exit 0
 fi;
 
+#functions
+trim() {
+    local var="$*"
+    var="${var#"${var%%[![:space:]]*}"}"
+    var="${var%"${var##*[![:space:]]}"}"
+    echo -n "$var"
+}
+
+#declare variables
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 REPO_PATH="https://raw.githubusercontent.com/setcooki/wp-installer/master"
 DB_NAME=''
@@ -64,16 +81,36 @@ WP_URL=''
 WP_VERSION=''
 WP_ADMIN_USER='admin'
 WP_ADMIN_PASS='admin'
-WP_DEMO=''
+WP_DEMO_DATA=''
 WP_CHECK=''
 WP_IMPORTER=''
 
-trim() {
-    local var="$*"
-    var="${var#"${var%%[![:space:]]*}"}"
-    var="${var%"${var##*[![:space:]]}"}"
-    echo -n "$var"
-}
+#parse command line arguments
+for i in "$@"
+do
+case $i in
+    --wp-url=*)
+    WP_URL="${i#*=}"
+    shift # past argument=value
+    ;;
+    --wp-version=*)
+    WP_VERSION="${i#*=}"
+    shift # past argument=value
+    ;;
+    --wp-demo-data=*)
+    WP_DEMO_DATA="${i#*=}"
+    if [[ "$WP_DEMO_DATA" != "y" || "$WP_DEMO_DATA" != "n" ]];
+    then
+        echo -e "> Value for --wp-demo-data must be \"y\" or \"n\""
+        exit 1;
+    fi;
+    shift # past argument=value
+    ;;
+    *)
+    # unknown option
+    ;;
+esac
+done
 
 echo -e "Welcome to wordpress demo + data installer"
 
@@ -88,15 +125,20 @@ fi;
 
 sleep .5
 
-while true; do
-    echo -n "Enter wordpress site url and press [ENTER]:"
-    read WP_URL
-    WP_URL=$(trim $WP_URL)
-    if [ ! -z $WP_URL ]; then
-        echo "> $WP_URL"; break;
-    fi;
-    sleep .5
-done;
+if [ -z "$WP_URL" ];
+then
+    while true; do
+        echo -n "Enter wordpress site url and press [ENTER]:"
+        read WP_URL
+        WP_URL=$(trim $WP_URL)
+        if [ ! -z $WP_URL ]; then
+            echo "> $WP_URL"; break;
+        fi;
+        sleep .5
+    done;
+else
+    echo -n "> Using wordpress site url: $WP_URL"
+fi;
 
 sleep .5
 
@@ -148,35 +190,43 @@ if [ ! -f $PWD/wp-config.php ]; then
 
 fi;
 
-echo -e -n "Enter wordpress version to install and press enter [ENTER] (leave empty for version defined in repository): "
-read WP_VERSION
-WP_VERSION=$(trim $WP_VERSION)
-if [ -z $WP_VERSION ];
+if [ -z "$WP_VERSION" ];
 then
-    WP_VERSION="`wget -qO- $REPO_PATH/wp-version`"
+    echo -e -n "Enter wordpress version to install and press enter [ENTER] (leave empty for version defined in repository): "
+    read WP_VERSION
+    WP_VERSION=$(trim $WP_VERSION)
+    if [ -z $WP_VERSION ];
+    then
+        WP_VERSION="`wget -qO- $REPO_PATH/wp-version`"
+    fi;
+    echo -e "> $WP_VERSION"
+else
+    echo -n "> Using wordpress version: $WP_VERSION"
 fi;
-echo -e "> $WP_VERSION"
 
 sleep .5
 
-echo -e -n "Do you wish to install demo data [y/n]: "
-while true; do
-    read yn
-    if [ $yn == 'y' ]
-    then
-        WP_DEMO='yes'
-        echo "> yes"; break;
-    elif [  $yn == 'n' ]
-    then
-        WP_DEMO='no'
-        echo "> no"; break;
-    else
-        echo "Please answer with [y/n]"
-    fi;
-
-    sleep .5
-
-done;
+if [ -z "$WP_DEMO_DATA" ];
+then
+    echo -e -n "Do you wish to install demo data [y/n]: "
+    while true; do
+        read yn
+        if [ $yn == 'y' ]
+        then
+            WP_DEMO_DATA='y'
+            echo "> yes"; break;
+        elif [  $yn == 'n' ]
+        then
+            WP_DEMO_DATA='n'
+            echo "> no"; break;
+        else
+            echo "Please answer with [y/n]"
+        fi;
+        sleep .5
+    done;
+else
+    echo -n "> Using wordpress demo data: $WP_DEMO_DATA"
+fi;
 
 echo -e "Downloading and installing wordpress $WP_VERSION core now..."
 
@@ -195,7 +245,7 @@ then
 fi;
 
 # if demo data check if database exists if not create and/or reset
-if [ $WP_DEMO == 'yes' ];
+if [ "$WP_DEMO_DATA" == "y" ];
 then
     echo -e "> checking for database now ..."
     WP_CHECK="$(wp db check --quiet)"
@@ -206,7 +256,7 @@ then
 fi;
 
 # install wp if not installed
-if [[ ( ! $(wp core is-installed) ) || ( $WP_DEMO == 'yes' ) ]];
+if [[ ( ! $(wp core is-installed) ) || ( $WP_DEMO_DATA == 'y' ) ]];
 then
     wp core install --url=$WP_URL --title=demo --admin_user=$WP_ADMIN_USER --admin_password=$WP_ADMIN_PASS --admin_email=$WP_ADMIN_USER@$WP_URL
     echo -e "> Install done - login to: $WP_URL/wp-admin with: $WP_ADMIN_USER, $WP_ADMIN_PASS"
@@ -224,7 +274,7 @@ echo -e "> checking for core update now ..."
 fi;
 
 # import demo data
-if [ $WP_DEMO == 'yes' ];
+if [ "$WP_DEMO_DATA" == "y" ];
 then
     echo -e "> Installing demo data now ..."
     WP_IMPORTER="$(wp plugin is-installed wordpress-importer --quiet)"

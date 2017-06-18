@@ -27,7 +27,7 @@ currently not supported!
 $ bash ./wp-installer
 ```
 
-and follow install steps
+and follow install steps. Script can be executed with command line arguments - see script header.
 
 ## Tips
 
