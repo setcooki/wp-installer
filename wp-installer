@@ -167,7 +167,7 @@ if [ ! -f $PWD/wp-config.php ]; then
     sleep .5
 
     while true; do
-        echo -n "Enter database username and press [ENTER]:"
+        echo -n "Enter database user name and press [ENTER]:"
         read DB_USER
         DB_USER=$(trim $DB_USER)
         if [ ! -z $DB_USER ]; then
@@ -178,7 +178,7 @@ if [ ! -f $PWD/wp-config.php ]; then
     sleep .5
 
     while true; do
-        echo -n "Enter database userpass and press [ENTER]:"
+        echo -n "Enter database user password and press [ENTER]:"
         read DB_PASS
         DB_PASS=$(trim $DB_PASS)
         if [ ! -z $DB_PASS ]; then
