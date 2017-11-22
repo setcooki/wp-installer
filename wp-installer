@@ -29,7 +29,7 @@
 #%
 #================================================================
 #- IMPLEMENTATION
-#-      version         ${SCRIPT_NAME} 0.0.2
+#-      version         ${SCRIPT_NAME} 0.0.3
 #-      author          Frank Mueller (setcooki)
 #-      copyright       Copyright (c) http://set.cooki.me
 #-      license         MIT License
@@ -38,6 +38,7 @@
 #  HISTORY
 #       2017/06/15 : setcooki : script creation
 #       2017/06/18 : setcooki : adds possibility to pass arguments
+#       2017/11/21 : setcooki : add possibility to define WP_VERSION file at script location
 #
 #================================================================
 # END_OF_HEADER
@@ -192,12 +193,17 @@ fi;
 
 if [ -z "$WP_VERSION" ];
 then
-    echo -e -n "Enter wordpress version to install and press enter [ENTER] (leave empty for version defined in repository): "
+    echo -e -n "Enter wordpress version to install and press enter [ENTER] (leave empty for version defined in WP_VERSION file or from git repository): "
     read WP_VERSION
     WP_VERSION=$(trim $WP_VERSION)
     if [ -z $WP_VERSION ];
     then
-        WP_VERSION="`wget -qO- $REPO_PATH/wp-version`"
+        if [ -f "$DIR/WP_VERSION" ];
+        then
+             WP_VERSION=$(<"$DIR/WP_VERSION")
+        else
+             WP_VERSION="`wget -qO- $REPO_PATH/wp-version`"
+        fi;
     fi;
     echo -e "> $WP_VERSION"
 else
