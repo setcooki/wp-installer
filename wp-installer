@@ -14,6 +14,8 @@
 #%      - install demo data if required
 #%
 #% OPTIONS
+#%      --wp-path=[path]            Expects the relative download/install path from
+#%                                  relative from where this installer is executed
 #%      --wp-url=[url]              Expects the url (without http(s)://)
 #%                                  under which wordpress install will be running
 #%      --wp-version=[version]      Expects wordpress versions string as on
@@ -39,6 +41,7 @@
 #       2017/06/15 : setcooki : script creation
 #       2017/06/18 : setcooki : adds possibility to pass arguments
 #       2017/11/21 : setcooki : add possibility to define WP_VERSION file at script location
+#       2017/11/22 : setcooki : add new run time option --wp-path
 #
 #================================================================
 # END_OF_HEADER
@@ -78,6 +81,8 @@ DB_NAME=''
 DB_USER=''
 DB_PASS=''
 DB_HOST=''
+WP_PATH=''
+WP_RELATIVE_PATH=''
 WP_URL=''
 WP_VERSION=''
 WP_ADMIN_USER='admin'
@@ -92,6 +97,10 @@ do
 case $i in
     --wp-url=*)
     WP_URL="${i#*=}"
+    shift # past argument=value
+    ;;
+    --wp-path=*)
+    WP_PATH="${i#*=}"
     shift # past argument=value
     ;;
     --wp-version=*)
@@ -143,7 +152,35 @@ fi;
 
 sleep .5
 
-if [ ! -f $PWD/wp-config.php ]; then
+if [ -z "$WP_PATH" ];
+then
+    while true; do
+        echo -n "Enter wordpress relative install/download path and press [ENTER]:"
+        read WP_PATH
+        WP_PATH=$(trim $WP_PATH)
+        if [ ! -z WP_PATH ]; then
+            echo "> $WP_PATH"; break;
+        fi;
+        sleep .5
+    done;
+else
+    echo -n "> Using wordpress site url: $WP_PATH"
+fi;
+
+WP_PATH=$(trim $WP_PATH)
+WP_PATH=${WP_PATH%/}
+WP_PATH=${WP_PATH#/}
+if [ -z "$WP_PATH" ];
+then
+    WP_PATH="$PWD"
+else
+    WP_RELATIVE_PATH="./$WP_PATH/"
+    WP_PATH="$PWD/$WP_PATH"
+fi;
+
+sleep .5
+
+if [ ! -f $WP_PATH/wp-config.php ]; then
 
     while true; do
         echo -n "Enter database name and press [ENTER]:"
@@ -237,16 +274,16 @@ fi;
 echo -e "Downloading and installing wordpress $WP_VERSION core now..."
 
 # download core
-if [ ! -f $PWD/wp-load.php ];
+if [ ! -f $WP_PATH/wp-load.php ];
 then
-    wp core download --version=$WP_VERSION --locale=en_US --force --quiet
+    wp core download --path=$WP_RELATIVE_PATH --version=$WP_VERSION --locale=en_US --force --quiet
     echo -e "> Wordpress core downloaded"
 fi;
 
 # create config if it does not exist
-if [ ! -f $PWD/wp-config.php ];
+if [ ! -f $WP_PATH/wp-config.php ];
 then
-    wp core config --dbname=$DB_NAME --dbhost=$DB_HOST --dbuser=$DB_USER --dbpass=$DB_PASS --force
+    wp config create --path=$WP_RELATIVE_PATH --dbname=$DB_NAME --dbhost=$DB_HOST --dbuser=$DB_USER --dbpass=$DB_PASS --force
     echo -e "> wp-config.php created"
 fi;
 
@@ -254,7 +291,7 @@ fi;
 if [ "$WP_DEMO_DATA" == "y" ];
 then
     echo -e "> checking for database now ..."
-    WP_CHECK="$(wp db check --quiet)"
+    WP_CHECK="$(wp db check --path=$WP_RELATIVE_PATH --quiet)"
     if [ $(echo $?) == "2" ]; then
         wp db create --quiet
     fi;
@@ -262,20 +299,20 @@ then
 fi;
 
 # install wp if not installed
-if [[ ( ! $(wp core is-installed) ) || ( $WP_DEMO_DATA == 'y' ) ]];
+if [[ ( ! $(wp core is-installed --path=$WP_RELATIVE_PATH --quiet) ) || ( $WP_DEMO_DATA == 'y' ) ]];
 then
-    wp core install --url=$WP_URL --title=demo --admin_user=$WP_ADMIN_USER --admin_password=$WP_ADMIN_PASS --admin_email=$WP_ADMIN_USER@$WP_URL
+    wp core install --path=$WP_RELATIVE_PATH --url=$WP_URL --title=demo --admin_user=$WP_ADMIN_USER --admin_password=$WP_ADMIN_PASS --admin_email=$WP_ADMIN_USER@$WP_URL
     echo -e "> Install done - login to: $WP_URL/wp-admin with: $WP_ADMIN_USER, $WP_ADMIN_PASS"
 else
     echo -e "> Installed already - login to: $WP_URL/wp-admin with existing user"
 fi;
 
 # make a core update
-if [ $(wp core version) != $WP_VERSION ];
+if [ $(wp core version --path=$WP_RELATIVE_PATH --quiet) != $WP_VERSION ];
 then
 echo -e "> checking for core update now ..."
-    wp core update --version=$WP_VERSION --locale=en_US --force --quiet
-    wp core update-db
+    wp core update --path=$WP_RELATIVE_PATH --version=$WP_VERSION --locale=en_US --force --quiet
+    wp core update-db --path=$WP_RELATIVE_PATH
     echo -e "> Core update to version $WP_VERSION done"
 fi;
 
@@ -283,15 +320,15 @@ fi;
 if [ "$WP_DEMO_DATA" == "y" ];
 then
     echo -e "> Installing demo data now ..."
-    WP_IMPORTER="$(wp plugin is-installed wordpress-importer --quiet)"
+    WP_IMPORTER="$(wp plugin is-installed wordpress-importer --path=$WP_RELATIVE_PATH --quiet)"
     if [ $(echo $?) == "1" ]; then
-        wp plugin install wordpress-importer --force --quiet
+        wp plugin install wordpress-importer --path=$WP_RELATIVE_PATH --force --quiet
     fi;
-    wp plugin activate wordpress-importer --quiet
+    wp plugin activate wordpress-importer --path=$WP_RELATIVE_PATH --quiet
     echo -e "> Downloading demo data now ..."
     wget -Nnv $REPO_PATH/wp-data.xml
     echo -e "> Importing demo data now ..."
-    WP_IMPORTER="$(wp import $PWD/wp-data.xml --authors=create --quiet)"
+    WP_IMPORTER="$(wp import $PWD/wp-data.xml --path=$WP_RELATIVE_PATH --authors=create --quiet)"
     echo -e "> Demo data has been installed"
     rm -rf $PWD/wp-data.xml
 fi;
