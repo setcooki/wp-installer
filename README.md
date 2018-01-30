@@ -44,3 +44,11 @@ wp-installer needs execute permission so you may need to set those with:
 ``` sh
 $ chmod +x wp-installer
 ```
+
+wp-cli has issues with PHP 7.1 when running as subscript. You may find that wp-cli core tasks like install or update
+fail with unknown errors. You can try to pass a PHP < 7.1 executable via:
+
+
+``` sh
+$ bash ./wp-installer --php=/path/to/php.5.6
+```
