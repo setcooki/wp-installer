@@ -187,7 +187,7 @@ then
         sleep .5
     done;
 else
-    echo -n "> Using wordpress site url: $WP_PATH"
+    echo -n "> Using wordpress site url: $WP_PATH\n"
 fi;
 
 WP_PATH=$(trim $WP_PATH)
