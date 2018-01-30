@@ -316,9 +316,9 @@ then
     echo -e "> checking for database now ..."
     WP_CHECK="$($PHP $WP_CLI db check --path=$WP_RELATIVE_PATH --quiet > /dev/null 2>&1)"
     if [ $(echo $?) == "2" ]; then
-        $PHP $WP_CLI db create --quiet
+        $PHP $WP_CLI db create --path=$WP_RELATIVE_PATH --quiet
     fi;
-    $PHP $WP_CLI db reset --yes --quiet
+    $PHP $WP_CLI db reset --yes --path=$WP_RELATIVE_PATH --quiet
 fi;
 
 # install wp if not installed
