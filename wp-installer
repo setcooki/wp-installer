@@ -32,7 +32,7 @@
 #%
 #================================================================
 #- IMPLEMENTATION
-#-      version         ${SCRIPT_NAME} 0.0.4
+#-      version         ${SCRIPT_NAME} 0.0.5
 #-      author          Frank Mueller (setcooki)
 #-      copyright       Copyright (c) http://set.cooki.me
 #-      license         MIT License
@@ -44,6 +44,7 @@
 #       2017/11/21 : setcooki : add possibility to define WP_VERSION file at script location
 #       2017/11/22 : setcooki : add new run time option --wp-path
 #       2018/30/01 : setcooki : major overhaul of script + adding option for using custom php executable
+#       2018/06/02 : setcooki : add mysql executable is check
 #
 #================================================================
 # END_OF_HEADER
@@ -143,6 +144,12 @@ then
         fi;
         sleep .5
     done;
+fi;
+
+if [ ! -x "$(command -v mysql)" ];
+then
+    echo -n "Could not find 'mysql' executable. Aborting now ..."
+    exit 1
 fi;
 
 if [ ! -f "$WP_CLI" ];
