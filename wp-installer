@@ -87,6 +87,7 @@ DB_NAME=""
 DB_USER=""
 DB_PASS=""
 DB_HOST=""
+DB_PREFIX="wp_"
 WP_CLI="./wp-cli.phar"
 WP_PATH=""
 WP_RELATIVE_PATH=""
@@ -256,6 +257,17 @@ if [ ! -f $WP_PATH/wp-config.php ]; then
 
     sleep .5
 
+    while true; do
+        echo -n "Enter table prefix (or leave empty) and press [ENTER]:"
+        read DB_PREFIX
+        DB_PREFIX=$(trim $DB_PREFIX)
+        if [ ! -z $DB_PREFIX ]; then
+            echo "> $DB_PREFIX"; break;
+        fi;
+    done;
+
+    sleep .5
+
 fi;
 
 if [ -z "$WP_VERSION" ];
@@ -313,7 +325,7 @@ fi;
 # create config if it does not exist
 if [ ! -f $WP_PATH/wp-config.php ];
 then
-    $PHP $WP_CLI config create --path=$WP_RELATIVE_PATH --dbname=$DB_NAME --dbhost=$DB_HOST --dbuser=$DB_USER --dbpass=$DB_PASS --force
+    $PHP $WP_CLI config create --path=$WP_RELATIVE_PATH --dbname=$DB_NAME --dbhost=$DB_HOST --dbuser=$DB_USER --dbpass=$DB_PASS --dbprefix=$DB_PREFIX --force
     echo -e "> wp-config.php created"
 fi;
 
