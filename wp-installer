@@ -119,7 +119,7 @@ case $i in
     ;;
     --wp-demo-data=*)
     WP_DEMO_DATA="${i#*=}"
-    if [[ "$WP_DEMO_DATA" != "y" || "$WP_DEMO_DATA" != "n" ]];
+    if [[ "$WP_DEMO_DATA" != "y" ]] && [[ "$WP_DEMO_DATA" != "n" ]];
     then
         echo -e "> Value for --wp-demo-data must be \"y\" or \"n\""
         exit 1;
@@ -157,6 +157,7 @@ if [ ! -f "$WP_CLI" ];
 then
     echo -e "> Downloading wp-cli now ..."
     curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x ./wp-cli.phar
 else
     echo -e "> Updating wp-cli now ..."
     $WP_CLI cli update
@@ -178,7 +179,7 @@ then
         sleep .5
     done;
 else
-    echo -n "> Using wordpress site url: $WP_URL"
+    echo -e "> Using wordpress site url: $WP_URL"
 fi;
 
 sleep .5
@@ -195,18 +196,19 @@ then
         sleep .5
     done;
 else
-    echo -n "> Using wordpress site url: $WP_PATH\n"
+    echo -e "> Using wordpress path: $WP_PATH"
 fi;
 
 WP_PATH=$(trim $WP_PATH)
 WP_PATH=${WP_PATH%/}
 WP_PATH=${WP_PATH#/}
+
 if [ -z "$WP_PATH" ];
 then
     WP_PATH="$PWD"
+    WP_RELATIVE_PATH="."
 else
-    WP_RELATIVE_PATH="./$WP_PATH/"
-    WP_PATH="$PWD/$WP_PATH"
+    WP_RELATIVE_PATH="$WP_PATH"
 fi;
 
 sleep .5
@@ -341,10 +343,12 @@ then
 fi;
 
 # install wp if not installed
-if [[ ( ! $($PHP $WP_CLI core is-installed --path=$WP_RELATIVE_PATH --quiet) ) || ( $WP_DEMO_DATA == "y" ) ]];
+if [[ ( ! $($PHP $WP_CLI core is-installed --path=$WP_RELATIVE_PATH --quiet) ) || ( "$WP_DEMO_DATA" == "y" ) ]];
 then
     echo -e "> Installing wordpress now ..."
-    $PHP $WP_CLI core install --path=$WP_RELATIVE_PATH --url=$WP_URL --title=test --prompt=admin_user,admin_password,admin_email
+    $PHP $WP_CLI core install --path="$WP_RELATIVE_PATH" --url="$WP_URL" --title="base theme" --prompt=admin_user,admin_password,admin_email --skip-email
+    $PHP $WP_CLI option update siteurl "$WP_URL" --path="$WP_RELATIVE_PATH" --url="$WP_URL"
+    $PHP $WP_CLI option update home "$WP_URL" --path="$WP_RELATIVE_PATH" --url="$WP_URL"
     echo -e "> Install done - login to: $WP_URL/wp-admin with your admin user"
 else
     echo -e "> Installed already - login to: $WP_URL/wp-admin with existing user"
