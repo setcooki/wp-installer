@@ -45,6 +45,7 @@
 #       2017/11/22 : setcooki : add new run time option --wp-path
 #       2018/30/01 : setcooki : major overhaul of script + adding option for using custom php executable
 #       2018/06/02 : setcooki : add mysql executable is check
+#       2019/10/26 : setcooki : prefix fix
 #
 #================================================================
 # END_OF_HEADER
