@@ -265,6 +265,8 @@ if [ ! -f $WP_PATH/wp-config.php ]; then
         DB_PREFIX=$(trim $DB_PREFIX)
         if [ ! -z $DB_PREFIX ]; then
             echo "> $DB_PREFIX"; break;
+        else
+            break;
         fi;
     done;
 
