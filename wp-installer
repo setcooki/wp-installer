@@ -82,7 +82,7 @@ trim() {
 }
 
 #declare variables
-PHP=""
+PHP=$(which php)
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 REPO_PATH="https://raw.githubusercontent.com/setcooki/wp-installer/master"
 DB_NAME=""
