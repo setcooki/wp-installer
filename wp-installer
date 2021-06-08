@@ -32,7 +32,7 @@
 #%
 #================================================================
 #- IMPLEMENTATION
-#-      version         ${SCRIPT_NAME} 0.0.5
+#-      version         ${SCRIPT_NAME} 0.0.6
 #-      author          Frank Mueller (setcooki)
 #-      copyright       Copyright (c) http://set.cooki.me
 #-      license         MIT License
@@ -46,6 +46,7 @@
 #       2018/30/01 : setcooki : major overhaul of script + adding option for using custom php executable
 #       2018/06/02 : setcooki : add mysql executable is check
 #       2019/10/26 : setcooki : prefix fix
+#       2021/06/07 : setcooki : adding a mysql connection test condition
 #
 #================================================================
 # END_OF_HEADER
@@ -171,7 +172,7 @@ sleep .5
 if [ -z "$WP_URL" ];
 then
     while true; do
-        echo -n "Enter wordpress site url and press [ENTER]:"
+        echo -n "Enter wordpress site url (with leading http(s)://) and press [ENTER]:"
         read WP_URL
         WP_URL=$(trim $WP_URL)
         if [ ! -z $WP_URL ]; then
@@ -188,7 +189,7 @@ sleep .5
 if [ -z "$WP_PATH" ];
 then
     while true; do
-        echo -n "Enter wordpress relative install/download path and press [ENTER]:"
+        echo -n "Enter wordpress relative install/root path and press [ENTER]:"
         read WP_PATH
         WP_PATH=$(trim $WP_PATH)
         if [ ! -z $WP_PATH ]; then
@@ -316,6 +317,12 @@ then
     done;
 else
     echo -n "> Using wordpress demo data: $WP_DEMO_DATA"
+fi;
+
+CHECK=$($PHP -r "echo (int)mysqli_connect('$DB_HOST', '$DB_USER', '$DB_PASS');")
+if [ $CHECK -eq 0 ]; then
+  echo -e "Could not connect to database. Please make sure host, user and password are correct"
+  exit
 fi;
 
 echo -e "Downloading and installing wordpress $WP_VERSION core now..."
