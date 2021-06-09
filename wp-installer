@@ -23,6 +23,7 @@
 #%                                  https://codex.wordpress.org/WordPress_Versions
 #%      --wp-demo-data=[y|n]        Expects value "y" or "n" whether to install
 #%                                  demo data
+#%      --db-prefix=[prefix]        Expects a table prefix value like 'wp_'
 #%
 #%      -h, --help                  Print this help
 #%      -v, --version               Print script information
@@ -47,6 +48,7 @@
 #       2018/06/02 : setcooki : add mysql executable is check
 #       2019/10/26 : setcooki : prefix fix
 #       2021/06/07 : setcooki : adding a mysql connection test condition
+#       2021/06/09 : setcooki : allow table prefix as command line argument
 #
 #================================================================
 # END_OF_HEADER
@@ -89,7 +91,7 @@ DB_NAME=""
 DB_USER=""
 DB_PASS=""
 DB_HOST=""
-DB_PREFIX="wp_"
+DB_PREFIX=""
 WP_CLI="./wp-cli.phar"
 WP_PATH=""
 WP_RELATIVE_PATH=""
@@ -117,6 +119,10 @@ case $i in
     ;;
     --wp-version=*)
     WP_VERSION="${i#*=}"
+    shift # past argument=value
+    ;;
+    --db-prefix=*)
+    DB_PREFIX="${i#*=}"
     shift # past argument=value
     ;;
     --wp-demo-data=*)
@@ -261,19 +267,23 @@ if [ ! -f $WP_PATH/wp-config.php ]; then
 
     sleep .5
 
-    while true; do
-        echo -n "Enter table prefix (or leave empty) and press [ENTER]:"
-        read DB_PREFIX
-        DB_PREFIX=$(trim $DB_PREFIX)
-        if [ ! -z $DB_PREFIX ]; then
-            echo "> $DB_PREFIX"; break;
-        else
-            break;
-        fi;
-    done;
+    if [ -z "$DB_PREFIX" ];
+    then
+      while true; do
+          echo -n "Enter table prefix (suggested 'wp_' or leave empty) and press [ENTER]:"
+          read DB_PREFIX
+          DB_PREFIX=$(trim $DB_PREFIX)
+          if [ ! -z $DB_PREFIX ]; then
+              echo "> $DB_PREFIX"; break;
+          else
+              break;
+          fi;
+      done;
 
-    sleep .5
-
+      sleep .5
+    else
+      echo -e "> Using table prefix: $DB_PREFIX"
+    fi;
 fi;
 
 if [ -z "$WP_VERSION" ];
