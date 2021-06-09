@@ -134,7 +134,7 @@ case $i in
 esac
 done
 
-echo -e "Welcome to wordpress demo + data installer"
+echo -e "Welcome to the interactive Wordpress installer"
 
 if [[ ( -z "$PHP" ) && ( ! -x "$(command -v php)" ) ]];
 then
@@ -292,7 +292,7 @@ then
     fi;
     echo -e "> $WP_VERSION"
 else
-    echo -n "> Using wordpress version: $WP_VERSION"
+    echo -e "> Using wordpress version: $WP_VERSION"
 fi;
 
 sleep .5
@@ -316,7 +316,7 @@ then
         sleep .5
     done;
 else
-    echo -n "> Using wordpress demo data: $WP_DEMO_DATA"
+    echo -e "> Using wordpress demo data: $WP_DEMO_DATA"
 fi;
 
 CHECK=$($PHP -r "echo (int)mysqli_connect('$DB_HOST', '$DB_USER', '$DB_PASS');")
