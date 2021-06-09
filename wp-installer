@@ -100,6 +100,7 @@ WP_VERSION=""
 WP_DEMO_DATA=""
 WP_CHECK=""
 WP_IMPORTER=""
+DB_CHECK=""
 
 #parse command line arguments
 for i in "$@"
@@ -329,8 +330,8 @@ else
     echo -e "> Using wordpress demo data: $WP_DEMO_DATA"
 fi;
 
-CHECK=$($PHP -r "echo (int)mysqli_connect('$DB_HOST', '$DB_USER', '$DB_PASS');")
-if [ $CHECK -eq 0 ]; then
+DB_CHECK=$($PHP -r "echo (int)mysqli_connect('$DB_HOST', '$DB_USER', '$DB_PASS');")
+if [ "$DB_CHECK" == "0" ]; then
   echo -e "Could not connect to database. Please make sure host, user and password are correct"
   exit
 fi;
