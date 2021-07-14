@@ -258,11 +258,13 @@ if [ ! -f $WP_PATH/wp-config.php ]; then
     sleep .5
 
     while true; do
-        echo -n "Enter database user password and press [ENTER]:"
+        echo -n "Enter database user password (or leave empty) and press [ENTER]:"
         read DB_PASS
         DB_PASS=$(trim $DB_PASS)
         if [ ! -z $DB_PASS ]; then
             echo "> ******"; break;
+        else
+            break;
         fi;
     done;
 
